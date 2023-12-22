@@ -69,7 +69,7 @@ public class AdminController {
     }
 
     @PutMapping("/tasks/{taskId}")
-    public ResponseEntity<TaskDto> update(@PathVariable Long taskId, TaskDto taskDto) {
+    public ResponseEntity<TaskDto> update(@PathVariable Long taskId, @RequestBody TaskDto taskDto) {
 
         try {
             TaskDto updatedTask = adminService.update(taskId, taskDto);
