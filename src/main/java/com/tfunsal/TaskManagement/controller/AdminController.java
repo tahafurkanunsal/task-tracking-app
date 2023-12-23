@@ -1,15 +1,19 @@
 package com.tfunsal.TaskManagement.controller;
 
+import com.tfunsal.TaskManagement.dto.CommentDto;
 import com.tfunsal.TaskManagement.dto.TaskDto;
+import com.tfunsal.TaskManagement.entities.User;
 import com.tfunsal.TaskManagement.enums.TaskStatus;
 import com.tfunsal.TaskManagement.enums.TaskTag;
 import com.tfunsal.TaskManagement.exception.NoSuchTaskExistsException;
 import com.tfunsal.TaskManagement.exception.UserNotFoundException;
 import com.tfunsal.TaskManagement.services.AdminService;
+import com.tfunsal.TaskManagement.services.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -22,11 +26,31 @@ public class AdminController {
 
     private final AdminService adminService;
 
+    private final CommentService commentService;
+
 
     @GetMapping("/tasks")
     public ResponseEntity<List<TaskDto>> getAllTasks() {
         List<TaskDto> tasksDtoList = adminService.getAllTasks();
         return ResponseEntity.ok(tasksDtoList);
+    }
+
+    @GetMapping("/comments")
+    public ResponseEntity<List<CommentDto>> getAllComments(){
+        List<CommentDto> commentDtoList = commentService.getAllComments();
+        return ResponseEntity.ok(commentDtoList);
+    }
+
+    @GetMapping(value = "/tasks/comments" , params = {"taskId"})
+    public ResponseEntity<List<CommentDto>> getCommentsByTask(@RequestParam Long taskId){
+        List<CommentDto> commentDtoList = commentService.getCommentsByTask(taskId);
+        return ResponseEntity.ok(commentDtoList);
+    }
+
+    @GetMapping(value = "/tasks/comments" , params = {"userId"})
+    public ResponseEntity<List<CommentDto>> getCommentsByUser(@RequestParam Long userId){
+        List<CommentDto> commentDtoList = commentService.getCommentsByUser(userId);
+        return ResponseEntity.ok(commentDtoList);
     }
 
     @GetMapping(value = "/tasks", params = {"taskId"})
@@ -93,6 +117,40 @@ public class AdminController {
         }
     }
 
+    @PutMapping("/tasks/{taskId}/comments")
+    public ResponseEntity<TaskDto> addCommentToTaskByAdmin(Authentication authentication,
+                                                           @PathVariable Long taskId ,
+                                                           @RequestBody CommentDto commentDto){
+
+        User user = (User) authentication.getPrincipal();
+        Long userId = user.getId();
+
+        TaskDto taskDto = adminService.getTaskByTaskId(taskId);
+
+
+        if (taskDto != null){
+            TaskDto addCommentTaskDto = commentService.addCommentToTaskByAdmin(userId ,taskId , commentDto);
+
+            return ResponseEntity.ok(addCommentTaskDto);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @PutMapping("tasks/{taskId}/comments/{commentId}")
+    public ResponseEntity<CommentDto> updateComment(@PathVariable Long taskId,
+                                                    @PathVariable Long commentId ,
+                                                    @RequestBody CommentDto commentDto){
+
+        TaskDto taskDto = adminService.getTaskByTaskId(taskId);
+
+        if (taskDto != null){
+
+            CommentDto updateComment = commentService.updateComment(taskId , commentId , commentDto);
+            return ResponseEntity.ok(updateComment);
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
 
     @DeleteMapping("/tasks/{taskId}")
     public ResponseEntity<Void> delete(@PathVariable Long taskId) {
@@ -100,6 +158,17 @@ public class AdminController {
         boolean deleted = adminService.delete(taskId);
 
         if (deleted) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/tasks/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId){
+
+        boolean deletedComment = commentService.delete(commentId);
+
+        if (deletedComment) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
