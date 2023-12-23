@@ -5,6 +5,8 @@ import com.tfunsal.TaskManagement.enums.TaskTag;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class TaskDto {
@@ -24,5 +26,7 @@ public class TaskDto {
     private LocalDateTime dueDate;
 
     private Long userId;
+
+    List<CommentDto> comments = new ArrayList<>();
 
 }
