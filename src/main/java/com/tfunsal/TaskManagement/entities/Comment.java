@@ -39,7 +39,7 @@ public class Comment {
         commentDto.setId(id);
         commentDto.setContent(content);
         commentDto.setCreatedDate(createdDate);
-        commentDto.setUserId(author.getId());
+        commentDto.setUser(author.getName());
         commentDto.setTaskId(task.getId());
         return commentDto;
     }

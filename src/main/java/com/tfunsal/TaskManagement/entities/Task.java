@@ -61,7 +61,7 @@ public class Task {
             commentDto.setId(comment.getId());
             commentDto.setContent(comment.getContent());
             commentDto.setCreatedDate(comment.getCreatedDate());
-            commentDto.setUserId(comment.getAuthor().getId());
+            commentDto.setUser(comment.getAuthor().getName());
             commentDto.setTaskId(comment.getTask().getId());
             commentDtoList.add(commentDto);
         }

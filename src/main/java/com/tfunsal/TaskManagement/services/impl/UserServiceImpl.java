@@ -10,6 +10,7 @@ import com.tfunsal.TaskManagement.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -48,7 +49,7 @@ public class UserServiceImpl implements UserService {
                 taskDto.setDescription(updatedTask.getDescription());
                 taskDto.setStatus(updatedTask.getStatus());
                 taskDto.setTag(updatedTask.getTag());
-                taskDto.setCreatedDate(updatedTask.getCreatedDate());
+                taskDto.setCreatedDate(LocalDateTime.now());
                 taskDto.setDueDate(updatedTask.getDueDate());
                 taskDto.setUserId(updatedTask.getAssignee().getId());
 

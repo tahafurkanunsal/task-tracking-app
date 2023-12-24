@@ -63,7 +63,7 @@ public class AdminServiceImpl implements AdminService {
         Task task = new Task();
         task.setTitle(taskDto.getTitle());
         task.setDescription(taskDto.getDescription());
-        task.setCreatedDate(taskDto.getCreatedDate());
+        task.setCreatedDate(LocalDateTime.now());
         task.setDueDate(taskDto.getDueDate());
         task.setStatus(taskDto.getStatus());
         task.setTag(taskDto.getTag());
@@ -86,7 +86,7 @@ public class AdminServiceImpl implements AdminService {
         existingTask.setTitle(taskDto.getTitle());
         existingTask.setDescription(taskDto.getDescription());
         existingTask.setDueDate(taskDto.getDueDate());
-        existingTask.setCreatedDate(taskDto.getCreatedDate());
+        existingTask.setCreatedDate(LocalDateTime.now());
         existingTask.setStatus(taskDto.getStatus());
         existingTask.setTag(taskDto.getTag());
 
@@ -118,7 +118,7 @@ public class AdminServiceImpl implements AdminService {
             taskDto.setDescription(updatedTask.getDescription());
             taskDto.setStatus(updatedTask.getStatus());
             taskDto.setTag(updatedTask.getTag());
-            taskDto.setCreatedDate(updatedTask.getCreatedDate());
+            taskDto.setCreatedDate(LocalDateTime.now());
             taskDto.setDueDate(updatedTask.getDueDate());
             taskDto.setUserId(updatedTask.getAssignee().getId());
 
