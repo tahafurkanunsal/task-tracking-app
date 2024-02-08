@@ -43,6 +43,10 @@ public class Task {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User assignee;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", nullable = false)
+    private Project project;
+
     public TaskDto getDto() {
         TaskDto taskDto = new TaskDto();
         taskDto.setId(id);
@@ -55,6 +59,8 @@ public class Task {
         if (assignee != null) {
             taskDto.setUserId(assignee.getId());
         }
+        taskDto.setProjectId(project.getId());
+        taskDto.setProjectName(project.getName());
         List<CommentDto> commentDtoList = new ArrayList<>();
         for (Comment comment : comments) {
             CommentDto commentDto = new CommentDto();
