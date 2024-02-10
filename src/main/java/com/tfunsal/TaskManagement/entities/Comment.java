@@ -21,6 +21,9 @@ public class Comment {
 
     private LocalDateTime createdDate;
 
+    private LocalDateTime modifiedDate;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id" , nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)

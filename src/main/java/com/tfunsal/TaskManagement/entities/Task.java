@@ -30,6 +30,8 @@ public class Task {
 
     private LocalDateTime dueDate;
 
+    private LocalDateTime modifiedDate;
+
     private TaskTag tag;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

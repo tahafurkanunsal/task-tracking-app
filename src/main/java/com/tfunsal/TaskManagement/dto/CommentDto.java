@@ -13,6 +13,8 @@ public class CommentDto {
 
     private LocalDateTime createdDate;
 
+    private LocalDateTime modifiedDate;
+
     private String user;
 
     private Long taskId;

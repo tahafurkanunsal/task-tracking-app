@@ -94,7 +94,8 @@ public class UserServiceImpl implements UserService {
             taskDto.setDescription(updatedTask.getDescription());
             taskDto.setStatus(updatedTask.getStatus());
             taskDto.setTag(updatedTask.getTag());
-            taskDto.setCreatedDate(LocalDateTime.now());
+            taskDto.setCreatedDate(updatedTask.getCreatedDate());
+            taskDto.setModifiedDate(LocalDateTime.now());
             taskDto.setDueDate(updatedTask.getDueDate());
             taskDto.setProjectName(existingTask.getProject().getName());
             taskDto.setProjectId(existingTask.getProject().getId());

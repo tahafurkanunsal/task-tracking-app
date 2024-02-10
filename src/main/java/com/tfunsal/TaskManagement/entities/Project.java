@@ -18,9 +18,16 @@ public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true)
     private String name;
+
     private String description;
+
     private LocalDateTime createdDate;
+
+    private LocalDateTime modifiedDate;
+
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
 
@@ -31,6 +38,7 @@ public class Project {
         projectDto.setName(name);
         projectDto.setDescription(description);
         projectDto.setCreatedDate(createdDate);
+        projectDto.setModifiedDate(modifiedDate);
 
         List<TaskDto> taskDtoList = new ArrayList<>();
         for (Task task : tasks) {
@@ -65,6 +73,7 @@ public class Project {
         projectInfoDto.setName(name);
         projectInfoDto.setDescription(description);
         projectInfoDto.setCreatedDate(createdDate);
+        projectInfoDto.setModifiedDate(modifiedDate);
         return projectInfoDto;
     }
 }

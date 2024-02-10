@@ -16,5 +16,7 @@ public class ProjectDto {
 
     private LocalDateTime createdDate;
 
+    private LocalDateTime modifiedDate;
+
     private List<TaskDto> taskDtoList;
 }

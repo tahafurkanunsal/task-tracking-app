@@ -14,4 +14,7 @@ public class ProjectInfoDto {
     private String description;
 
     private LocalDateTime createdDate;
+
+    private LocalDateTime modifiedDate;
+
 }

@@ -126,6 +126,7 @@ public class CommentServiceImpl implements CommentService {
                     comment.setAuthor(userRepository.findById(userId).get());
                     comment.setContent(commentDto.getContent());
                     comment.setCreatedDate(LocalDateTime.now());
+                    comment.setModifiedDate(LocalDateTime.now());
                     comment.setTask(task);
 
                     task.getComments().add(comment);
@@ -158,6 +159,7 @@ public class CommentServiceImpl implements CommentService {
                 comment.setAuthor(userRepository.findById(userId).get());
                 comment.setContent(commentDto.getContent());
                 comment.setCreatedDate(LocalDateTime.now());
+                comment.setModifiedDate(LocalDateTime.now());
                 comment.setTask(existingTask);
 
                 existingTask.getComments().add(comment);
@@ -190,6 +192,7 @@ public class CommentServiceImpl implements CommentService {
                     Comment existingComment = optionalComment.get();
 
                     existingComment.setContent(commentDto.getContent());
+                    existingComment.setModifiedDate(LocalDateTime.now());
                     existingComment.setTask(task);
 
                     return commentRepository.save(existingComment).getDto();

@@ -76,6 +76,7 @@ public class AdminServiceImpl implements AdminService {
         project.setName(projectInfoDto.getName());
         project.setDescription(projectInfoDto.getDescription());
         project.setCreatedDate(LocalDateTime.now());
+        project.setModifiedDate(LocalDateTime.now());
 
         return projectRepository.save(project).getProjectInfoDto();
     }
@@ -95,7 +96,7 @@ public class AdminServiceImpl implements AdminService {
             }
 
             Project savedProject = projectRepository.save(existingProject);
-            return savedProject.getProjectInfoDto(); // Assuming getProjectInfoDto() method is properly implemented.
+            return savedProject.getProjectInfoDto();
         } else {
             throw new ProjectNotFoundException("Project not found with id: " + projectId);
         }
@@ -154,6 +155,7 @@ public class AdminServiceImpl implements AdminService {
             task.setTitle(taskCreateDto.getTitle());
             task.setDescription(taskCreateDto.getDescription());
             task.setCreatedDate(LocalDateTime.now());
+            task.setModifiedDate(LocalDateTime.now());
             task.setDueDate(taskCreateDto.getDueDate());
             task.setStatus(taskCreateDto.getStatus());
             task.setTag(taskCreateDto.getTag());
@@ -195,6 +197,7 @@ public class AdminServiceImpl implements AdminService {
                 task.setStatus(taskDto.getStatus());
                 task.setTag(taskDto.getTag());
                 task.setDescription(taskDto.getDescription());
+                task.setModifiedDate(LocalDateTime.now());
                 task.setDueDate(taskDto.getDueDate());
 
                 if (taskDto.getProjectId() != null) {
@@ -251,6 +254,7 @@ public class AdminServiceImpl implements AdminService {
             taskDto.setStatus(updatedTask.getStatus());
             taskDto.setTag(updatedTask.getTag());
             taskDto.setCreatedDate(updatedTask.getCreatedDate());
+            taskDto.setModifiedDate(LocalDateTime.now());
             taskDto.setDueDate(updatedTask.getDueDate());
             taskDto.setProjectName(updatedTask.getProject().getName());
             taskDto.setProjectId(updatedTask.getProject().getId());
@@ -305,6 +309,7 @@ public class AdminServiceImpl implements AdminService {
         taskDto.setStatus(updatedTask.getStatus());
         taskDto.setTag(updatedTask.getTag());
         taskDto.setCreatedDate(updatedTask.getCreatedDate());
+        taskDto.setModifiedDate(LocalDateTime.now());
         taskDto.setDueDate(updatedTask.getDueDate());
         taskDto.setProjectId(updatedTask.getProject().getId());
         taskDto.setProjectName(updatedTask.getProject().getName());
