@@ -6,8 +6,6 @@ import com.tfunsal.TaskManagement.enums.TaskStatus;
 import com.tfunsal.TaskManagement.enums.TaskTag;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,14 +32,17 @@ public class Task {
 
     private TaskTag tag;
 
-    @OneToMany(cascade = CascadeType.ALL ,orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "comment_id")
     private List<Comment> comments = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "user_id", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private User assignee;
+    @ManyToMany
+    @JoinTable(
+            name = "task_assignees",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> assignees = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
@@ -56,11 +57,17 @@ public class Task {
         taskDto.setDueDate(dueDate);
         taskDto.setStatus(status);
         taskDto.setTag(tag);
-        if (assignee != null) {
-            taskDto.setUserId(assignee.getId());
-        }
         taskDto.setProjectId(project.getId());
         taskDto.setProjectName(project.getName());
+
+        List<Long> userIds = new ArrayList<>();
+        if (assignees != null) {
+            for (User assignee : assignees) {
+                userIds.add(assignee.getId());
+            }
+        }
+        taskDto.setUserIds(userIds != null ? userIds : new ArrayList<>());
+        taskDto.setUserIds(userIds);
         List<CommentDto> commentDtoList = new ArrayList<>();
         for (Comment comment : comments) {
             CommentDto commentDto = new CommentDto();

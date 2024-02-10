@@ -121,7 +121,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public List<TaskDto> getTasksByUserId(Long userId) {
-        List<Task> tasks = taskRepository.findByAssigneeId(userId);
+        List<Task> tasks = taskRepository.findByAssigneesId(userId);
         return tasks.stream().map(Task::getDto).collect(Collectors.toList());
     }
 
@@ -160,29 +160,31 @@ public class AdminServiceImpl implements AdminService {
             task.setProject(project);
 
 
-            if (taskCreateDto.getUserId() != null) {
-                User assignee = userRepository.findById(taskCreateDto.getUserId())
-                        .orElseThrow(() -> new NoSuchElementException("User not found with id: " + taskCreateDto.getUserId()));
-                task.setAssignee(assignee);
+            if (taskCreateDto.getUserIds() != null && !taskCreateDto.getUserIds().isEmpty()) {
+                List<User> assignees = new ArrayList<>();
+                for (Long userId : taskCreateDto.getUserIds()) {
+                    User assignee = userRepository.findById(userId)
+                            .orElseThrow(() -> new NoSuchElementException("User not found with id: " + userId));
+                    assignees.add(assignee);
+                }
+                task.setAssignees(assignees);
             } else {
-                task.setAssignee(null);
+                task.setAssignees(null);
             }
             Task savedTask = taskRepository.save(task);
             return savedTask.getDto();
         }
         throw new ProjectNotFoundException("Project not found with id:" + projectId);
+
     }
 
     @Override
     public TaskDto updateTask(Long projectId, Long taskId, TaskDto taskDto) {
-
-
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isPresent()) {
             Project project = optionalProject.get();
             Optional<Task> existingTaskOptional = taskRepository.findById(taskId);
             if (existingTaskOptional.isPresent()) {
-
                 Task task = existingTaskOptional.get();
 
                 if (!task.getProject().getId().equals(projectId)) {
@@ -197,29 +199,22 @@ public class AdminServiceImpl implements AdminService {
 
                 if (taskDto.getProjectId() != null) {
                     Optional<Project> projectOptional = projectRepository.findById(taskDto.getProjectId());
-                    if (projectOptional != null) {
-                        if (projectOptional.isPresent()) {
-                            Project editProject = projectOptional.get();
-                            task.setProject(editProject);
-                        } else {
-                            throw new ProjectNotFoundException("Project not found wiht id : " + taskDto.getProjectId());
-                        }
-                    }
+                    Project editProject = projectOptional.orElseThrow(() -> new ProjectNotFoundException("Project not found with id : " + taskDto.getProjectId()));
+                    task.setProject(editProject);
                 } else {
                     task.setProject(project);
                 }
 
-                Long userId = taskDto.getUserId();
-                if (userId != null) {
-                    Optional<User> optionalUser = userRepository.findById(userId);
-                    if (optionalUser.isPresent()) {
-                        User user = optionalUser.get();
-                        task.setAssignee(user);
-                    } else {
-                        throw new UserNotFoundException("User not found with id: " + userId);
+                if (taskDto.getUserIds() != null && !taskDto.getUserIds().isEmpty()) {
+                    List<User> assignees = new ArrayList<>();
+                    for (Long userId : taskDto.getUserIds()) {
+                        User assignee = userRepository.findById(userId)
+                                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+                        assignees.add(assignee);
                     }
+                    task.setAssignees(assignees);
                 } else {
-                    task.setAssignee(null);
+                    task.setAssignees(null);
                 }
 
                 Task updatedTask = taskRepository.save(task);
@@ -232,6 +227,7 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 
+
     @Override
     public TaskDto assignAUserForTask(Long projectId, Long taskId, Long userId) {
 
@@ -240,14 +236,12 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() -> new NoSuchTaskExistsException("Task not found with id:" + taskId));
 
         if (task.getProject().getId().equals(projectId)) {
-            if (task.getAssignee() != null) {
-                throw new TaskAlreadyAssignedException("Task already assigned to a user.");
-            }
 
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new UserNotFoundException("User not found with id:" + userId));
 
-            task.setAssignee(user);
+            task.getAssignees().add(user);
+
             Task updatedTask = taskRepository.save(task);
 
             TaskDto taskDto = new TaskDto();
@@ -256,8 +250,16 @@ public class AdminServiceImpl implements AdminService {
             taskDto.setDescription(updatedTask.getDescription());
             taskDto.setStatus(updatedTask.getStatus());
             taskDto.setTag(updatedTask.getTag());
+            taskDto.setCreatedDate(updatedTask.getCreatedDate());
             taskDto.setDueDate(updatedTask.getDueDate());
-            taskDto.setUserId(updatedTask.getAssignee().getId());
+            taskDto.setProjectName(updatedTask.getProject().getName());
+            taskDto.setProjectId(updatedTask.getProject().getId());
+
+            List<Long> userIds = new ArrayList<>();
+            for (User assignee : updatedTask.getAssignees()) {
+                userIds.add(assignee.getId());
+            }
+            taskDto.setUserIds(userIds);
 
             return taskDto;
         } else {
@@ -275,11 +277,25 @@ public class AdminServiceImpl implements AdminService {
             throw new IllegalArgumentException("Task does not belong to the specified project.");
         }
 
-        if (task.getAssignee() == null) {
+        List<User> assignees = task.getAssignees();
+        if (task.getAssignees() == null || assignees.isEmpty()) {
             throw new TaskAlreadyUnassignedException("The task is not assigned to a user anyway.");
         }
 
-        task.setAssignee(null);
+        User userToRemove = null;
+        for (User assignee : assignees) {
+            if (assignee.getId().equals(userId)) {
+                userToRemove = assignee;
+                break;
+            }
+        }
+
+        if (userToRemove == null) {
+            throw new UserNotFoundException("User not found with id: " + userId);
+        }
+
+
+        task.getAssignees().remove(userToRemove);
         Task updatedTask = taskRepository.save(task);
 
         TaskDto taskDto = new TaskDto();
@@ -292,7 +308,12 @@ public class AdminServiceImpl implements AdminService {
         taskDto.setDueDate(updatedTask.getDueDate());
         taskDto.setProjectId(updatedTask.getProject().getId());
         taskDto.setProjectName(updatedTask.getProject().getName());
-        taskDto.setUserId(null);
+
+        List<Long> userIds = new ArrayList<>();
+        for (User assign : updatedTask.getAssignees()) {
+            userIds.add(assign.getId());
+        }
+        taskDto.setUserIds(userIds);
 
         return taskDto;
     }

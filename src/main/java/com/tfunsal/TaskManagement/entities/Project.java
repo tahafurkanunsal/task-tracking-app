@@ -25,7 +25,7 @@ public class Project {
     private List<Task> tasks;
 
 
-    public ProjectDto getDto(){
+    public ProjectDto getDto() {
         ProjectDto projectDto = new ProjectDto();
         projectDto.setId(id);
         projectDto.setName(name);
@@ -33,7 +33,7 @@ public class Project {
         projectDto.setCreatedDate(createdDate);
 
         List<TaskDto> taskDtoList = new ArrayList<>();
-        for (Task task : tasks){
+        for (Task task : tasks) {
             TaskDto taskDto = new TaskDto();
             taskDto.setId(task.getId());
             taskDto.setTitle(task.getTitle());
@@ -42,7 +42,13 @@ public class Project {
             taskDto.setTag(task.getTag());
             taskDto.setCreatedDate(task.getCreatedDate());
             taskDto.setDueDate(task.getDueDate());
-            taskDto.setUserId(task.getAssignee().getId());
+
+            List<Long> assigneeIds = new ArrayList<>();
+            for (User assignee : task.getAssignees()) {
+                assigneeIds.add(assignee.getId());
+            }
+            taskDto.setUserIds(assigneeIds);
+
             taskDto.setProjectId(task.getProject().getId());
             taskDto.setProjectName(task.getProject().getName());
             taskDto.setComments(task.getDto().getComments());
@@ -52,7 +58,8 @@ public class Project {
         return projectDto;
     }
 
-    public ProjectInfoDto getProjectInfoDto(){
+
+    public ProjectInfoDto getProjectInfoDto() {
         ProjectInfoDto projectInfoDto = new ProjectInfoDto();
         projectInfoDto.setId(id);
         projectInfoDto.setName(name);

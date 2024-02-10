@@ -4,6 +4,7 @@ import com.tfunsal.TaskManagement.dto.ProjectInfoDto;
 import com.tfunsal.TaskManagement.dto.TaskDto;
 import com.tfunsal.TaskManagement.entities.Project;
 import com.tfunsal.TaskManagement.entities.Task;
+import com.tfunsal.TaskManagement.entities.User;
 import com.tfunsal.TaskManagement.enums.TaskStatus;
 import com.tfunsal.TaskManagement.exception.NoSuchTaskExistsException;
 import com.tfunsal.TaskManagement.exception.ProjectNotFoundException;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,7 +33,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ProjectInfoDto getProjectByProjectId(Long projectId, Long userId) {
-        List<Task> taskList = taskRepository.findByAssigneeId(userId);
+        List<Task> taskList = taskRepository.findByAssigneesId(userId);
 
         Optional<Task> projectTask = taskList.stream()
                 .filter(task -> task.getProject().getId().equals(projectId))
@@ -47,26 +49,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<TaskDto> getTasksByUserId(Long userId) {
-        List<Task> tasks = taskRepository.findByAssigneeId(userId);
+        List<Task> tasks = taskRepository.findByAssigneesId(userId);
         return tasks.stream().map(Task::getDto).collect(Collectors.toList());
     }
 
     @Override
     public List<TaskDto> getTasksByProjectId(Long projectId, Long userId) {
 
-        List<Task> tasks = taskRepository.findByProjectIdAndAssigneeId(projectId, userId);
+        List<Task> tasks = taskRepository.findByProjectIdAndAssigneesId(projectId, userId);
         return tasks.stream().map(Task::getDto).collect(Collectors.toList());
     }
 
     @Override
     public TaskDto getTaskByUserIdAndTaskId(Long userId, Long taskId) {
-        Task task = taskRepository.findByAssigneeIdAndId(userId, taskId);
+        Task task = taskRepository.findByAssigneesIdAndId(userId, taskId);
         return task.getDto();
     }
 
     @Override
     public TaskDto getTaskByProjectIdAndTaskIdAndUserId(Long projectId, Long taskId, Long userId) {
-        Task task = taskRepository.findByProjectIdAndIdAndAssigneeId(projectId, taskId, userId);
+        Task task = taskRepository.findByProjectIdAndIdAndAssigneesId(projectId, taskId, userId);
         return task.getDto();
     }
 
@@ -77,25 +79,33 @@ public class UserServiceImpl implements UserService {
         if (taskOptional.isPresent()) {
             Task existingTask = taskOptional.get();
 
-            if (existingTask.getAssignee() != null && existingTask.getAssignee().getId().equals(userId)) {
-                existingTask.setStatus(status);
-
-                Task updatedTask = taskRepository.save(existingTask);
-
-                TaskDto taskDto = new TaskDto();
-                taskDto.setId(updatedTask.getId());
-                taskDto.setTitle(updatedTask.getTitle());
-                taskDto.setDescription(updatedTask.getDescription());
-                taskDto.setStatus(updatedTask.getStatus());
-                taskDto.setTag(updatedTask.getTag());
-                taskDto.setCreatedDate(LocalDateTime.now());
-                taskDto.setDueDate(updatedTask.getDueDate());
-                taskDto.setUserId(updatedTask.getAssignee().getId());
-
-                return taskDto;
-            } else {
+            List<User> assignees = existingTask.getAssignees();
+            if (assignees == null || assignees.isEmpty() || !assignees.stream().anyMatch(u -> u.getId().equals(userId))) {
                 throw new UnauthorizedTaskAccessException("User does not have permission to update this task.");
             }
+
+            existingTask.setStatus(status);
+
+            Task updatedTask = taskRepository.save(existingTask);
+
+            TaskDto taskDto = new TaskDto();
+            taskDto.setId(updatedTask.getId());
+            taskDto.setTitle(updatedTask.getTitle());
+            taskDto.setDescription(updatedTask.getDescription());
+            taskDto.setStatus(updatedTask.getStatus());
+            taskDto.setTag(updatedTask.getTag());
+            taskDto.setCreatedDate(LocalDateTime.now());
+            taskDto.setDueDate(updatedTask.getDueDate());
+            taskDto.setProjectName(existingTask.getProject().getName());
+            taskDto.setProjectId(existingTask.getProject().getId());
+
+            List<Long> userIds = new ArrayList<>();
+            for (User assignee : updatedTask.getAssignees()) {
+                userIds.add(assignee.getId());
+            }
+            taskDto.setUserIds(userIds);
+
+            return taskDto;
         } else {
             throw new NoSuchTaskExistsException("Task with ID " + taskId + " not found.");
         }

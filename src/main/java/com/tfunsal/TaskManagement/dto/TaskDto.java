@@ -25,7 +25,7 @@ public class TaskDto {
 
     private LocalDateTime dueDate;
 
-    private Long userId;
+    private List<Long> userIds = new ArrayList<>();
 
     private Long projectId;
 

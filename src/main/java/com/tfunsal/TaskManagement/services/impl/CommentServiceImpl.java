@@ -6,10 +6,7 @@ import com.tfunsal.TaskManagement.entities.Comment;
 import com.tfunsal.TaskManagement.entities.Project;
 import com.tfunsal.TaskManagement.entities.Task;
 import com.tfunsal.TaskManagement.entities.User;
-import com.tfunsal.TaskManagement.exception.CommentNotFoundException;
-import com.tfunsal.TaskManagement.exception.NoSuchTaskExistsException;
-import com.tfunsal.TaskManagement.exception.ProjectNotFoundException;
-import com.tfunsal.TaskManagement.exception.UserNotFoundException;
+import com.tfunsal.TaskManagement.exception.*;
 import com.tfunsal.TaskManagement.repository.CommentRepository;
 import com.tfunsal.TaskManagement.repository.ProjectRepository;
 import com.tfunsal.TaskManagement.repository.TaskRepository;
@@ -94,14 +91,15 @@ public class CommentServiceImpl implements CommentService {
             throw new IllegalArgumentException("The task is not associated with the specified project.");
         }
 
-        if (!task.getAssignee().getId().equals(userId)) {
+        List<User> assignees = task.getAssignees();
+        if (assignees == null || assignees.isEmpty() || !assignees.stream().anyMatch(u -> u.getId().equals(userId))) {
             throw new IllegalArgumentException("The task is not assigned to the specified user.");
         }
 
         List<CommentDto> allCommentsForTask = getCommentsByTask(taskId);
 
         for (CommentDto comment : allCommentsForTask) {
-            if (comment.getTaskId().equals(taskId) && comment.getUser().equals(user.getName())) {
+            if (comment.getUser().equals(user.getName())) {
                 userCommentsInProjectAndTask.add(comment);
             }
         }
@@ -116,22 +114,27 @@ public class CommentServiceImpl implements CommentService {
 
             Optional<Task> optionalTask = taskRepository.findById(taskId);
             if (optionalTask.isPresent()) {
-                Task existingTask = optionalTask.get();
+                Task task = optionalTask.get();
 
-                if (existingTask.getAssignee() != null && existingTask.getAssignee().getId().equals(userId)) {
+                List<User> assignees = task.getAssignees();
+
+                if (assignees != null && !assignees.isEmpty() && assignees.stream().anyMatch(user -> user.getId().equals(userId))) {
+
 
                     Comment comment = new Comment();
 
                     comment.setAuthor(userRepository.findById(userId).get());
                     comment.setContent(commentDto.getContent());
                     comment.setCreatedDate(LocalDateTime.now());
-                    comment.setTask(existingTask);
+                    comment.setTask(task);
 
-                    existingTask.getComments().add(comment);
+                    task.getComments().add(comment);
 
-                    taskRepository.save(existingTask);
+                    taskRepository.save(task);
 
-                    return existingTask.getDto();
+                    return task.getDto();
+                } else {
+                    throw new UnauthorizedTaskAccessException("User is not authorized to add comment to this task.");
                 }
             } else {
                 throw new NoSuchTaskExistsException("Task not found with id : " + taskId);

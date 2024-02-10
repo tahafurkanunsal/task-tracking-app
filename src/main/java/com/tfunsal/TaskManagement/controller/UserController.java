@@ -6,6 +6,8 @@ import com.tfunsal.TaskManagement.dto.TaskDto;
 import com.tfunsal.TaskManagement.entities.User;
 import com.tfunsal.TaskManagement.enums.TaskStatus;
 import com.tfunsal.TaskManagement.exception.NoSuchTaskExistsException;
+import com.tfunsal.TaskManagement.exception.ProjectNotFoundException;
+import com.tfunsal.TaskManagement.exception.UnauthorizedTaskAccessException;
 import com.tfunsal.TaskManagement.services.CommentService;
 import com.tfunsal.TaskManagement.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/user")
@@ -149,29 +150,25 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-
     @PutMapping("/projects/{projectId}/tasks/{taskId}/comments")
     public ResponseEntity<TaskDto> addCommentToTaskByUser(Authentication authentication,
                                                           @PathVariable Long projectId,
                                                           @PathVariable Long taskId,
                                                           @RequestBody CommentDto commentDto) {
+
         User user = (User) authentication.getPrincipal();
         Long userId = user.getId();
 
-        ProjectInfoDto projectInfoDto = userService.getProjectByProjectId(projectId, userId);
-
-        if (projectInfoDto != null) {
-
-
-            TaskDto taskDto = userService.getTaskByUserIdAndTaskId(userId, taskId);
-
-            if (taskDto != null) {
-                TaskDto addCommentTaskDto = commentService.addCommentToTaskByUser(userId, projectId, taskId, commentDto);
-                return ResponseEntity.ok(addCommentTaskDto);
-            }
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        try {
+            TaskDto taskDto = commentService.addCommentToTaskByUser(userId, projectId, taskId, commentDto);
+            return ResponseEntity.ok(taskDto);
+        } catch (ProjectNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (NoSuchTaskExistsException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (UnauthorizedTaskAccessException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
 
