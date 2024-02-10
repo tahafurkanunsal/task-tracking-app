@@ -44,6 +44,7 @@ public class Comment {
         commentDto.setCreatedDate(createdDate);
         commentDto.setUser(author.getName());
         commentDto.setTaskId(task.getId());
+        commentDto.setModifiedDate(modifiedDate);
         return commentDto;
     }
 

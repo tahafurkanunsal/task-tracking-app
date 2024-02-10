@@ -49,6 +49,7 @@ public class Project {
             taskDto.setStatus(task.getStatus());
             taskDto.setTag(task.getTag());
             taskDto.setCreatedDate(task.getCreatedDate());
+            taskDto.setModifiedDate(task.getModifiedDate());
             taskDto.setDueDate(task.getDueDate());
 
             List<Long> assigneeIds = new ArrayList<>();

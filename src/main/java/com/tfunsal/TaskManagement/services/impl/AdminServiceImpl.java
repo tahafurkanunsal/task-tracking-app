@@ -94,6 +94,7 @@ public class AdminServiceImpl implements AdminService {
             if (projectInfoDto.getDescription() != null) {
                 existingProject.setDescription(projectInfoDto.getDescription());
             }
+            existingProject.setModifiedDate(LocalDateTime.now());
 
             Project savedProject = projectRepository.save(existingProject);
             return savedProject.getProjectInfoDto();

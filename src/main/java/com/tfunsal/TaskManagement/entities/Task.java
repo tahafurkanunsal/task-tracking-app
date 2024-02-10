@@ -56,6 +56,7 @@ public class Task {
         taskDto.setTitle(title);
         taskDto.setDescription(description);
         taskDto.setCreatedDate(createdDate);
+        taskDto.setModifiedDate(modifiedDate);
         taskDto.setDueDate(dueDate);
         taskDto.setStatus(status);
         taskDto.setTag(tag);
