@@ -1,21 +1,23 @@
 package com.tfunsal.TaskManagement.services.impl;
 
-import com.tfunsal.TaskManagement.dto.TaskDto;
+import com.tfunsal.TaskManagement.dto.*;
+import com.tfunsal.TaskManagement.entities.Project;
 import com.tfunsal.TaskManagement.entities.Task;
 import com.tfunsal.TaskManagement.entities.User;
 import com.tfunsal.TaskManagement.enums.TaskStatus;
 import com.tfunsal.TaskManagement.enums.TaskTag;
-import com.tfunsal.TaskManagement.exception.NoSuchTaskExistsException;
-import com.tfunsal.TaskManagement.exception.UserNotFoundException;
+import com.tfunsal.TaskManagement.exception.*;
+import com.tfunsal.TaskManagement.repository.ProjectRepository;
 import com.tfunsal.TaskManagement.repository.TaskRepository;
 import com.tfunsal.TaskManagement.repository.UserRepository;
 import com.tfunsal.TaskManagement.services.AdminService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -27,90 +29,226 @@ public class AdminServiceImpl implements AdminService {
 
     private final TaskRepository taskRepository;
 
+    private final ProjectRepository projectRepository;
 
+
+    @Override
+    public List<ProjectInfoDto> getAllProjects() {
+        List<Project> projects = projectRepository.findAll();
+        return projects.stream().map(Project::getProjectInfoDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public ProjectInfoDto getProjectByProjectId(Long projectId) {
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException("Project not found." + projectId));
+        return project.getProjectInfoDto();
+    }
+
+    @Override
+    public List<TaskDto> getTasksByProjectForAUser(Long projectId, Long userId) {
+        ProjectInfoDto projectInfoDto = getProjectByProjectId(projectId);
+        List<TaskDto> tasksInProjectForUser = new ArrayList<>();
+
+        if (projectInfoDto != null) {
+            List<TaskDto> allTasksForUser = getTasksByUserId(userId);
+            boolean tasks = false;
+
+            for (TaskDto task : allTasksForUser) {
+                if (task.getProjectId().equals(projectId)) {
+                    tasksInProjectForUser.add(task);
+                    tasks = true;
+                }
+            }
+            if (!tasks) {
+                throw new IllegalArgumentException("The user does not have a task in the specified project.");
+            }
+        }
+
+        return tasksInProjectForUser;
+    }
+
+
+    @Override
+    public ProjectInfoDto createProject(ProjectInfoDto projectInfoDto) {
+        Project project = new Project();
+
+        project.setId(projectInfoDto.getId());
+        project.setName(projectInfoDto.getName());
+        project.setDescription(projectInfoDto.getDescription());
+        project.setCreatedDate(LocalDateTime.now());
+
+        return projectRepository.save(project).getProjectInfoDto();
+    }
+
+    @Override
+    public ProjectInfoDto updateProject(Long projectId, ProjectInfoDto projectInfoDto) {
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+
+        if (optionalProject.isPresent()) {
+            Project existingProject = optionalProject.get();
+
+            if (projectInfoDto.getName() != null) {
+                existingProject.setName(projectInfoDto.getName());
+            }
+            if (projectInfoDto.getDescription() != null) {
+                existingProject.setDescription(projectInfoDto.getDescription());
+            }
+
+            Project savedProject = projectRepository.save(existingProject);
+            return savedProject.getProjectInfoDto(); // Assuming getProjectInfoDto() method is properly implemented.
+        } else {
+            throw new ProjectNotFoundException("Project not found with id: " + projectId);
+        }
+    }
+
+    @Override
     public List<TaskDto> getAllTasks() {
         List<Task> tasks = taskRepository.findAll();
         return tasks.stream().map(Task::getDto).collect(Collectors.toList());
     }
 
+    @Override
+    public List<TaskDto> getAllTasksByProject(Long projectId) {
+        List<Task> tasks = taskRepository.findByProjectId(projectId);
+        return tasks.stream().map(Task::getDto).collect(Collectors.toList());
+    }
+
+    @Override
     public TaskDto getTaskByTaskId(Long taskId) {
-        Task task = taskRepository.findById(taskId).orElseThrow(() -> new NoSuchTaskExistsException("Task not found."));
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new NoSuchTaskExistsException("Task not found." + taskId));
         return task.getDto();
     }
 
+    @Override
     public List<TaskDto> getTasksByUserId(Long userId) {
         List<Task> tasks = taskRepository.findByAssigneeId(userId);
         return tasks.stream().map(Task::getDto).collect(Collectors.toList());
     }
 
+    @Override
     public List<TaskDto> getTasksByTaskTag(TaskTag tag) {
         List<Task> tasks = taskRepository.findTasksByTag(tag);
         return tasks.stream().map(Task::getDto).collect(Collectors.toList());
     }
 
+    @Override
     public List<TaskDto> getTasksByTaskStatus(TaskStatus taskStatus) {
         List<Task> tasks = taskRepository.findTasksByStatus(taskStatus);
         return tasks.stream().map(Task::getDto).collect(Collectors.toList());
     }
 
+    @Override
     public List<TaskDto> getTasksByDate(LocalDateTime startDate, LocalDateTime endDate) {
         List<Task> tasks = taskRepository.findTasksAtBetween(startDate, endDate);
         return tasks.stream().map(Task::getDto).collect(Collectors.toList());
 
     }
 
-    public TaskDto create(TaskDto taskDto) {
-        Task task = new Task();
-        task.setTitle(taskDto.getTitle());
-        task.setDescription(taskDto.getDescription());
-        task.setCreatedDate(LocalDateTime.now());
-        task.setDueDate(taskDto.getDueDate());
-        task.setStatus(taskDto.getStatus());
-        task.setTag(taskDto.getTag());
+    @Override
+    public TaskDto assignATaskForProject(Long projectId, TaskCreateDto taskCreateDto) {
 
-        if (taskDto.getUserId() != null) {
-            User assignee = userRepository.findById(taskDto.getUserId())
-                    .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + taskDto.getUserId()));
-            task.setAssignee(assignee);
-        } else {
-            task.setAssignee(null);
+        Optional<Project> projectOptional = projectRepository.findById(projectId);
+        if (projectOptional.isPresent()) {
+            Project project = projectOptional.get();
+            Task task = new Task();
+            task.setTitle(taskCreateDto.getTitle());
+            task.setDescription(taskCreateDto.getDescription());
+            task.setCreatedDate(LocalDateTime.now());
+            task.setDueDate(taskCreateDto.getDueDate());
+            task.setStatus(taskCreateDto.getStatus());
+            task.setTag(taskCreateDto.getTag());
+            task.setProject(project);
+
+
+            if (taskCreateDto.getUserId() != null) {
+                User assignee = userRepository.findById(taskCreateDto.getUserId())
+                        .orElseThrow(() -> new NoSuchElementException("User not found with id: " + taskCreateDto.getUserId()));
+                task.setAssignee(assignee);
+            } else {
+                task.setAssignee(null);
+            }
+            Task savedTask = taskRepository.save(task);
+            return savedTask.getDto();
         }
-
-        return taskRepository.save(task).getDto();
+        throw new ProjectNotFoundException("Project not found with id:" + projectId);
     }
 
-    public TaskDto update(Long taskId, TaskDto taskDto) {
+    @Override
+    public TaskDto updateTask(Long projectId, Long taskId, TaskDto taskDto) {
 
-        Task existingTask = taskRepository.findById(taskId).get();
 
-        existingTask.setTitle(taskDto.getTitle());
-        existingTask.setDescription(taskDto.getDescription());
-        existingTask.setDueDate(taskDto.getDueDate());
-        existingTask.setCreatedDate(LocalDateTime.now());
-        existingTask.setStatus(taskDto.getStatus());
-        existingTask.setTag(taskDto.getTag());
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+        if (optionalProject.isPresent()) {
+            Project project = optionalProject.get();
+            Optional<Task> existingTaskOptional = taskRepository.findById(taskId);
+            if (existingTaskOptional.isPresent()) {
 
-        Optional<User> optionalUser = userRepository.findById(taskDto.getUserId());
+                Task task = existingTaskOptional.get();
 
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            existingTask.setAssignee(user);
+                if (!task.getProject().getId().equals(projectId)) {
+                    throw new IllegalArgumentException("Task does not belong to the specified project.");
+                }
 
+                task.setTitle(taskDto.getTitle());
+                task.setStatus(taskDto.getStatus());
+                task.setTag(taskDto.getTag());
+                task.setDescription(taskDto.getDescription());
+                task.setDueDate(taskDto.getDueDate());
+
+                if (taskDto.getProjectId() != null) {
+                    Optional<Project> projectOptional = projectRepository.findById(taskDto.getProjectId());
+                    if (projectOptional != null) {
+                        if (projectOptional.isPresent()) {
+                            Project editProject = projectOptional.get();
+                            task.setProject(editProject);
+                        } else {
+                            throw new ProjectNotFoundException("Project not found wiht id : " + taskDto.getProjectId());
+                        }
+                    }
+                } else {
+                    task.setProject(project);
+                }
+
+                Long userId = taskDto.getUserId();
+                if (userId != null) {
+                    Optional<User> optionalUser = userRepository.findById(userId);
+                    if (optionalUser.isPresent()) {
+                        User user = optionalUser.get();
+                        task.setAssignee(user);
+                    } else {
+                        throw new UserNotFoundException("User not found with id: " + userId);
+                    }
+                } else {
+                    task.setAssignee(null);
+                }
+
+                Task updatedTask = taskRepository.save(task);
+                return updatedTask.getDto();
+            } else {
+                throw new NoSuchTaskExistsException("Task not found with id: " + taskId);
+            }
         } else {
-            throw new UserNotFoundException("User not found with id : " + taskDto.getUserId());
+            throw new ProjectNotFoundException("Project not found with id: " + projectId);
         }
-        return taskRepository.save(existingTask).getDto();
     }
 
-    public TaskDto assignAUserForTask(Long taskId, Long userId) {
+    @Override
+    public TaskDto assignAUserForTask(Long projectId, Long taskId, Long userId) {
 
-        Task existingTask = taskRepository.findById(taskId).orElseThrow();
 
-        if (existingTask != null && existingTask.getAssignee() == null) {
-            User user = userRepository.findById(userId).orElseThrow();
-            existingTask.setAssignee(user);
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new NoSuchTaskExistsException("Task not found with id:" + taskId));
 
-            Task updatedTask = taskRepository.save(existingTask);
+        if (task.getProject().getId().equals(projectId)) {
+            if (task.getAssignee() != null) {
+                throw new TaskAlreadyAssignedException("Task already assigned to a user.");
+            }
+
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new UserNotFoundException("User not found with id:" + userId));
+
+            task.setAssignee(user);
+            Task updatedTask = taskRepository.save(task);
 
             TaskDto taskDto = new TaskDto();
             taskDto.setId(updatedTask.getId());
@@ -118,23 +256,73 @@ public class AdminServiceImpl implements AdminService {
             taskDto.setDescription(updatedTask.getDescription());
             taskDto.setStatus(updatedTask.getStatus());
             taskDto.setTag(updatedTask.getTag());
-            taskDto.setCreatedDate(LocalDateTime.now());
             taskDto.setDueDate(updatedTask.getDueDate());
             taskDto.setUserId(updatedTask.getAssignee().getId());
 
             return taskDto;
+        } else {
+            throw new IllegalArgumentException("Task does not belong to the specified project.");
         }
-        return null;
     }
 
-    public boolean delete(Long taskId) {
+    @Override
+    public TaskDto unAssignAUserForTask(Long projectId, Long taskId, Long userId) {
 
-        Optional<Task> optionalTask = taskRepository.findById(taskId);
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new NoSuchTaskExistsException("Task not found with id:" + taskId));
 
-        if (optionalTask.isPresent()) {
-            taskRepository.deleteById(taskId);
-            return true;
+        if (!task.getProject().getId().equals(projectId)) {
+            throw new IllegalArgumentException("Task does not belong to the specified project.");
         }
-        return false;
+
+        if (task.getAssignee() == null) {
+            throw new TaskAlreadyUnassignedException("The task is not assigned to a user anyway.");
+        }
+
+        task.setAssignee(null);
+        Task updatedTask = taskRepository.save(task);
+
+        TaskDto taskDto = new TaskDto();
+        taskDto.setId(updatedTask.getId());
+        taskDto.setTitle(updatedTask.getTitle());
+        taskDto.setDescription(updatedTask.getDescription());
+        taskDto.setStatus(updatedTask.getStatus());
+        taskDto.setTag(updatedTask.getTag());
+        taskDto.setCreatedDate(updatedTask.getCreatedDate());
+        taskDto.setDueDate(updatedTask.getDueDate());
+        taskDto.setProjectId(updatedTask.getProject().getId());
+        taskDto.setProjectName(updatedTask.getProject().getName());
+        taskDto.setUserId(null);
+
+        return taskDto;
+    }
+
+
+    @Override
+    public boolean deleteProject(Long projectId) {
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+
+        if (optionalProject.isPresent()) {
+            projectRepository.deleteById(projectId);
+            return true;
+        } else {
+            throw new ProjectNotFoundException("Project not found with id: " + projectId);
+        }
+    }
+
+    public boolean deleteTask(Long projectId, Long taskId) {
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+
+        if (optionalProject.isPresent()) {
+            Optional<Task> optionalTask = taskRepository.findById(taskId);
+            if (optionalTask.isPresent()) {
+                taskRepository.deleteById(taskId);
+                return true;
+            } else {
+                throw new NoSuchTaskExistsException("Task not found with id: " + taskId);
+            }
+        } else {
+            throw new ProjectNotFoundException("Project not found with id: " + projectId);
+        }
     }
 }

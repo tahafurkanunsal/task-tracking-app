@@ -1,6 +1,6 @@
 package com.tfunsal.TaskManagement.services;
 
-import com.tfunsal.TaskManagement.dto.TaskDto;
+import com.tfunsal.TaskManagement.dto.*;
 import com.tfunsal.TaskManagement.enums.TaskStatus;
 import com.tfunsal.TaskManagement.enums.TaskTag;
 
@@ -9,7 +9,19 @@ import java.util.List;
 
 public interface AdminService {
 
+    List<ProjectInfoDto> getAllProjects();
+
+    ProjectInfoDto getProjectByProjectId(Long projectId);
+
+    List<TaskDto> getTasksByProjectForAUser(Long projectId, Long userId);
+
+    ProjectInfoDto createProject(ProjectInfoDto projectInfoDto);
+
+    ProjectInfoDto updateProject(Long projectId, ProjectInfoDto projectInfoDto);
+
     List<TaskDto> getAllTasks();
+
+    List<TaskDto> getAllTasksByProject(Long projectId);
 
     TaskDto getTaskByTaskId(Long taskId);
 
@@ -21,12 +33,17 @@ public interface AdminService {
 
     List<TaskDto> getTasksByDate(LocalDateTime startDate, LocalDateTime endDate);
 
-    TaskDto create(TaskDto taskDto);
+    TaskDto assignATaskForProject(Long ProjectId, TaskCreateDto taskCreateDto);
 
-    TaskDto update(Long taskId, TaskDto taskDto);
+    TaskDto updateTask(Long projectId, Long taskId, TaskDto taskDto);
 
-    TaskDto assignAUserForTask(Long taskId, Long userId);
+    TaskDto assignAUserForTask(Long projectId, Long taskId, Long userId);
 
-    boolean delete(Long taskId);
+    TaskDto unAssignAUserForTask(Long projectId, Long taskId, Long userId);
+
+    boolean deleteProject(Long projectId);
+
+    boolean deleteTask(Long projectId, Long taskId);
+
 
 }
