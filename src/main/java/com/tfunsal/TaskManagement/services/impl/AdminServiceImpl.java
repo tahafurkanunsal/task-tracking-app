@@ -15,10 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -239,37 +236,42 @@ public class AdminServiceImpl implements AdminService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new NoSuchTaskExistsException("Task not found with id:" + taskId));
 
-        if (task.getProject().getId().equals(projectId)) {
-
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new UserNotFoundException("User not found with id:" + userId));
-
-            task.getAssignees().add(user);
-
-            Task updatedTask = taskRepository.save(task);
-
-            TaskDto taskDto = new TaskDto();
-            taskDto.setId(updatedTask.getId());
-            taskDto.setTitle(updatedTask.getTitle());
-            taskDto.setDescription(updatedTask.getDescription());
-            taskDto.setStatus(updatedTask.getStatus());
-            taskDto.setTag(updatedTask.getTag());
-            taskDto.setCreatedDate(updatedTask.getCreatedDate());
-            taskDto.setModifiedDate(LocalDateTime.now());
-            taskDto.setDueDate(updatedTask.getDueDate());
-            taskDto.setProjectName(updatedTask.getProject().getName());
-            taskDto.setProjectId(updatedTask.getProject().getId());
-
-            List<Long> userIds = new ArrayList<>();
-            for (User assignee : updatedTask.getAssignees()) {
-                userIds.add(assignee.getId());
-            }
-            taskDto.setUserIds(userIds);
-
-            return taskDto;
-        } else {
+        if (!task.getProject().getId().equals(projectId)) {
             throw new IllegalArgumentException("Task does not belong to the specified project.");
         }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id:" + userId));
+
+
+        if (task.getAssignees().contains(user)) {
+            throw new TaskAlreadyAssignedException("User is already assigned to the task.");
+        }
+
+        task.getAssignees().add(user);
+
+        Task updatedTask = taskRepository.save(task);
+
+        TaskDto taskDto = new TaskDto();
+        taskDto.setId(updatedTask.getId());
+        taskDto.setTitle(updatedTask.getTitle());
+        taskDto.setDescription(updatedTask.getDescription());
+        taskDto.setStatus(updatedTask.getStatus());
+        taskDto.setTag(updatedTask.getTag());
+        taskDto.setCreatedDate(updatedTask.getCreatedDate());
+        taskDto.setModifiedDate(LocalDateTime.now());
+        taskDto.setDueDate(updatedTask.getDueDate());
+        taskDto.setProjectName(updatedTask.getProject().getName());
+        taskDto.setProjectId(updatedTask.getProject().getId());
+
+        Set<Long> userIds = new HashSet<>();
+
+        for (User assignee : updatedTask.getAssignees()) {
+            userIds.add(assignee.getId());
+        }
+        taskDto.setUserIds(new ArrayList<>(userIds));
+
+        return taskDto;
     }
 
     @Override
