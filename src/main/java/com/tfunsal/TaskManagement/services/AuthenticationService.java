@@ -10,7 +10,7 @@ public interface AuthenticationService {
 
     User signUp(SignUpRequest signUpRequest);
 
-    JwtAuthenticationResponse signIn(SignInRequest signinRequest);
+//    JwtAuthenticationResponse signIn(SignInRequest signinRequest);
 
     JwtAuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest);
 }

@@ -2,7 +2,6 @@ package com.tfunsal.TaskManagement.services.impl;
 
 import com.tfunsal.TaskManagement.dto.JwtAuthenticationResponse;
 import com.tfunsal.TaskManagement.dto.RefreshTokenRequest;
-import com.tfunsal.TaskManagement.dto.SignInRequest;
 import com.tfunsal.TaskManagement.dto.SignUpRequest;
 import com.tfunsal.TaskManagement.entities.User;
 import com.tfunsal.TaskManagement.enums.UserRole;
@@ -13,12 +12,10 @@ import com.tfunsal.TaskManagement.utils.JwtUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +41,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return userRepository.save(user);
     }
 
-    public JwtAuthenticationResponse signIn(SignInRequest signInRequest) {
+/*    public JwtAuthenticationResponse signIn(SignInRequest signInRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInRequest.getEmail(), signInRequest.getPassword()));
 
         var user = userRepository.findByEmail(signInRequest.getEmail()).orElseThrow(() -> new IllegalArgumentException("Invalid email or password!"));
@@ -56,7 +53,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         jwtAuthenticationResponse.setRefreshToken(refreshToken);
 
         return jwtAuthenticationResponse;
-    }
+    }*/
+
 
     public JwtAuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
         String userEmail = jwtUtil.extractUserName(refreshTokenRequest.getToken());
