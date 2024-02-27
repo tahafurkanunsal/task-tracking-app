@@ -19,7 +19,7 @@ public class JwtUtil {
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder().setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 46 * 24))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 46))
                 .signWith(getSiginKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -27,7 +27,7 @@ public class JwtUtil {
     public String generateRefreshToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 604800000))
+                .setExpiration(new Date(System.currentTimeMillis() + 904800000))
                 .signWith(getSiginKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
