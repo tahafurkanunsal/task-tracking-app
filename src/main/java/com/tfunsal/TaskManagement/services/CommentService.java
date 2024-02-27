@@ -7,22 +7,14 @@ import java.util.List;
 
 public interface CommentService {
 
-    List<CommentDto> getAllComments();
+    List<CommentDto> getAllComments(Long userId);
 
-    List<CommentDto> getCommentsByTask(Long taskId);
+    List<CommentDto> getCommentsByTaskIdAndProjectId(Long projectId, Long taskId, Long userId);
 
-    List<CommentDto> getCommentsByUser(Long userId);
+    TaskDto addCommentToTask(Long userId, Long projectId, Long taskId, CommentDto commentDto);
 
-    List<CommentDto> getCommentsByTaskIdAndProjectId(Long projectId, Long taskId);
+    CommentDto updateComment(Long projectId, Long taskId, Long userId, Long commentId, CommentDto commentDto);
 
-    List<CommentDto> getUserCommentsByTaskIdAndProjectId(Long projectId, Long taskId, Long userId);
-
-    TaskDto addCommentToTaskByUser(Long userId, Long projectId, Long taskId, CommentDto commentDto);
-
-    TaskDto addCommentToTaskByAdmin(Long userId, Long projectId, Long taskId, CommentDto commentDto);
-
-    CommentDto updateComment(Long projectId, Long taskId, Long commentId, CommentDto commentDto);
-
-    boolean deleteComment(Long projectId, Long taskId, Long commentId);
+    boolean deleteComment(Long projectId, Long taskId, Long userId, Long commentId);
 
 }

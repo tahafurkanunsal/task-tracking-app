@@ -11,22 +11,18 @@ import com.tfunsal.TaskManagement.services.AuthenticationService;
 import com.tfunsal.TaskManagement.utils.JwtUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UserRepository userRepository;
-
-    private final AuthenticationManager authenticationManager;
-
     private final PasswordEncoder passwordEncoder;
-
     private final JwtUtil jwtUtil;
 
     public User signUp(SignUpRequest signUpRequest) {
@@ -37,6 +33,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setSurname(signUpRequest.getSurname());
         user.setRole(UserRole.USER);
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
+        user.setCompanyRole(new ArrayList<>());
+        user.setCompany(null);
 
         return userRepository.save(user);
     }
@@ -70,7 +68,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             return jwtAuthenticationResponse;
         }
         return null;
-
     }
 
     @PostConstruct
