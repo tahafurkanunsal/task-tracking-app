@@ -5,6 +5,7 @@ import com.tfunsal.TaskManagement.services.impl.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -32,8 +33,24 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(request -> request.requestMatchers("/api/auth/**")
                         .permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasAnyAuthority(UserRole.ADMIN.name())
-                        .requestMatchers("/api/user/**").hasAnyAuthority(UserRole.USER.name())
+                        .requestMatchers(HttpMethod.POST, "/api/companies").permitAll()
+                        .requestMatchers("/api/app/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/companies/**").hasAuthority("COMPANY_ADMIN")
+                        .requestMatchers("/api/comments").hasAuthority("COMPANY_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/tasks/{taskId}/status").hasAuthority("USER")
+                        .requestMatchers(
+                                "/api/projects/{projectId}/tasks",
+                                "/api/projects/{projectId}/tasks/{taskId}/details",
+                                "/api/projects/{projectId}/tasks/{taskId}/assigned-users",
+                                "/api/projects/{projectId}/tasks/{taskId}/assignee/{userId}",
+                                "/api/projects/{projectId}/tasks/{taskId}/unassignee/{userId}",
+                                "/api/projects/{projectId}/tasks/{taskId}").hasAuthority("COMPANY_ADMIN")
+                        .requestMatchers(
+                                "/api/tasks",
+                                "/api/all-tasks",
+                                "/api/projects/{projectId}/users/{userId}/tasks",
+                                "/api/projects/{projectId}/tasks/{taskId}/comments/**").hasAnyAuthority(UserRole.COMPANY_ADMIN.name(), UserRole.USER.name())
+
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider()).addFilterBefore(
