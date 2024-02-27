@@ -3,5 +3,6 @@ package com.tfunsal.TaskManagement.enums;
 public enum UserRole {
 
     USER,
-    ADMIN
+    ADMIN,
+    COMPANY_ADMIN
 }

@@ -31,6 +31,10 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    private Company company;
+
 
     public ProjectDto getDto() {
         ProjectDto projectDto = new ProjectDto();
@@ -39,6 +43,8 @@ public class Project {
         projectDto.setDescription(description);
         projectDto.setCreatedDate(createdDate);
         projectDto.setModifiedDate(modifiedDate);
+        projectDto.setCompanyId(company.getId());
+        projectDto.setCompanyName(company.getCompanyName());
 
         List<TaskDto> taskDtoList = new ArrayList<>();
         for (Task task : tasks) {
@@ -64,9 +70,9 @@ public class Project {
             taskDtoList.add(taskDto);
         }
         projectDto.setTaskDtoList(taskDtoList);
+
         return projectDto;
     }
-
 
     public ProjectInfoDto getProjectInfoDto() {
         ProjectInfoDto projectInfoDto = new ProjectInfoDto();
@@ -75,6 +81,9 @@ public class Project {
         projectInfoDto.setDescription(description);
         projectInfoDto.setCreatedDate(createdDate);
         projectInfoDto.setModifiedDate(modifiedDate);
+        projectInfoDto.setCompanyId(company.getId());
+        projectInfoDto.setCompanyName(company.getCompanyName());
+
         return projectInfoDto;
     }
 }

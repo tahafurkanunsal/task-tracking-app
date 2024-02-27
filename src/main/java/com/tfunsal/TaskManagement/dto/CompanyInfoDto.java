@@ -5,20 +5,19 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class ProjectInfoDto {
+public class CompanyInfoDto {
 
     private Long id;
 
-    private String name;
+    private String companyName;
 
-    private String description;
+    private boolean isActivate;
 
     private LocalDateTime createdDate;
 
     private LocalDateTime modifiedDate;
 
-    private Long companyId;
+    private Long companyOwnerId;
 
-    private String companyName;
-
+    private String companyOwnerName;
 }

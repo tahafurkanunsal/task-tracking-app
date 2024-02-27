@@ -25,12 +25,12 @@ public class Comment {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id" , nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User author;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "task_id" , nullable = false)
+    @JoinColumn(name = "task_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Task task;
 
@@ -47,5 +47,4 @@ public class Comment {
         commentDto.setModifiedDate(modifiedDate);
         return commentDto;
     }
-
 }

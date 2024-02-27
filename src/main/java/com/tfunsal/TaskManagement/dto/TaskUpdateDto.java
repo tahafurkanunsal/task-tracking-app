@@ -5,9 +5,11 @@ import com.tfunsal.TaskManagement.enums.TaskTag;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
-public class TaskCreateDto {
+public class TaskUpdateDto {
 
     private String title;
 
@@ -17,8 +19,13 @@ public class TaskCreateDto {
 
     private TaskTag tag;
 
-    private LocalDateTime createdDate;
+    private LocalDateTime modifiedDate;
 
     private LocalDateTime dueDate;
 
+    private List<Long> userIds = new ArrayList<>();
+
+    private Long projectId;
+
+    private String projectName;
 }

@@ -77,11 +77,13 @@ public class Task {
             commentDto.setId(comment.getId());
             commentDto.setContent(comment.getContent());
             commentDto.setCreatedDate(comment.getCreatedDate());
+            commentDto.setModifiedDate(comment.getModifiedDate());
             commentDto.setUser(comment.getAuthor().getName());
             commentDto.setTaskId(comment.getTask().getId());
             commentDtoList.add(commentDto);
         }
         taskDto.setComments(commentDtoList);
+
         return taskDto;
     }
 }

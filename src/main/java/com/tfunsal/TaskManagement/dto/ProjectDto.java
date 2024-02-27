@@ -18,5 +18,9 @@ public class ProjectDto {
 
     private LocalDateTime modifiedDate;
 
+    private Long companyId;
+
+    private String companyName;
+
     private List<TaskDto> taskDtoList;
 }
