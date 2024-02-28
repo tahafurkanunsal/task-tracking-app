@@ -3,8 +3,10 @@ package com.tfunsal.TaskManagement.services.impl;
 import com.tfunsal.TaskManagement.dto.JwtAuthenticationResponse;
 import com.tfunsal.TaskManagement.dto.RefreshTokenRequest;
 import com.tfunsal.TaskManagement.dto.SignUpRequest;
+import com.tfunsal.TaskManagement.entities.Company;
 import com.tfunsal.TaskManagement.entities.User;
 import com.tfunsal.TaskManagement.enums.UserRole;
+import com.tfunsal.TaskManagement.repository.CompanyRepository;
 import com.tfunsal.TaskManagement.repository.UserRepository;
 import com.tfunsal.TaskManagement.services.AuthenticationService;
 
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UserRepository userRepository;
+    private final CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
@@ -76,12 +79,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         User adminAccount = userRepository.findByRole(UserRole.ADMIN);
         if (adminAccount == null) {
 
+            Company company = new Company();
+            company.setCompanyName("COMPANY-PROJECT-APP");
+            companyRepository.save(company);
+
             User user = new User();
             user.setEmail("admin@test.com");
             user.setName("admin");
             user.setSurname("admin");
             user.setRole(UserRole.ADMIN);
             user.setPassword(new BCryptPasswordEncoder().encode("admin"));
+            user.setCompany(company);
 
             userRepository.save(user);
         }

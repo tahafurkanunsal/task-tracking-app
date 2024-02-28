@@ -1,12 +1,14 @@
 package com.tfunsal.TaskManagement.services.impl;
 
 import com.tfunsal.TaskManagement.dto.*;
+import com.tfunsal.TaskManagement.entities.Company;
 import com.tfunsal.TaskManagement.entities.Project;
 import com.tfunsal.TaskManagement.entities.Task;
 import com.tfunsal.TaskManagement.entities.User;
 import com.tfunsal.TaskManagement.enums.TaskStatus;
 import com.tfunsal.TaskManagement.enums.TaskTag;
 import com.tfunsal.TaskManagement.exception.*;
+import com.tfunsal.TaskManagement.repository.CompanyRepository;
 import com.tfunsal.TaskManagement.repository.ProjectRepository;
 import com.tfunsal.TaskManagement.repository.TaskRepository;
 import com.tfunsal.TaskManagement.repository.UserRepository;
@@ -27,6 +29,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final CompanyRepository companyRepository;
 
 
     @Override

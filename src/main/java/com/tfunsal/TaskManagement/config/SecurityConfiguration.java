@@ -35,6 +35,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/companies").permitAll()
                         .requestMatchers("/api/app/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/users").hasAuthority("ADMIN")
                         .requestMatchers("/api/companies/**").hasAuthority("COMPANY_ADMIN")
                         .requestMatchers("/api/comments").hasAuthority("COMPANY_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/tasks/{taskId}/status").hasAuthority("USER")
@@ -49,7 +50,8 @@ public class SecurityConfiguration {
                                 "/api/tasks",
                                 "/api/all-tasks",
                                 "/api/projects/{projectId}/users/{userId}/tasks",
-                                "/api/projects/{projectId}/tasks/{taskId}/comments/**").hasAnyAuthority(UserRole.COMPANY_ADMIN.name(), UserRole.USER.name())
+                                "/api/projects/{projectId}/tasks/{taskId}/comments/**",
+                                "/api/users/{userId}").hasAnyAuthority(UserRole.COMPANY_ADMIN.name(), UserRole.USER.name())
 
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
