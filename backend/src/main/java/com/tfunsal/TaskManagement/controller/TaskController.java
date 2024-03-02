@@ -58,12 +58,12 @@ public class TaskController {
     }
 
 
-    @GetMapping("/all-tasks") // users
-    public ResponseEntity<List<TaskDto>> getTasksByUserId(Authentication authentication) {
+    @GetMapping("/users/{assignedId}/all-tasks")
+    public ResponseEntity<List<TaskDto>> getTasksByUserId(@PathVariable Long assignedId , Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         Long userId = user.getId();
 
-        List<TaskDto> taskDtoList = taskService.getTasksByUserId(userId);
+        List<TaskDto> taskDtoList = taskService.getTasksByUserId(userId ,assignedId);
         return ResponseEntity.ok(taskDtoList);
     }
 

@@ -62,10 +62,30 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDto> getTasksByUserId(Long userId) {
-        List<Task> tasks = taskRepository.findByAssigneesId(userId);
-        return tasks.stream().map(Task::getDto).collect(Collectors.toList());
+    public List<TaskDto> getTasksByUserId(Long userId, Long assignedId) {
+
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id : " + userId));
+
+        List<TaskDto> assignedTaskByUser = new ArrayList<>();
+        if (user.getCompany().getCompanyOwner().getId().equals(userId) || user.getCompany() != null){
+            List<Project> projects = projectRepository.findProjectsByCompanyId(user.getCompany().getId());
+
+            for (Project project : projects){
+                List<Task> tasks = taskRepository.findTasksByProjectId(project.getId());
+
+                for (Task task : tasks){
+                    if (task.getAssignees().contains(user)){
+                        assignedTaskByUser.add(task.getDto());
+                    }
+                }
+            }
+            return assignedTaskByUser;
+        }
+        throw new UnauthorizedCompanyAccessException("You are not authorized to access the tasks of this company's projects.");
     }
+
 
     @Override
     public List<TaskDto> getTasksByProjectForAUser(Long projectId, Long userId) {

@@ -16,7 +16,7 @@ public interface TaskService {
 
     TaskDto getTaskDetails(Long projectId, Long taskId, Long userId);
 
-    List<TaskDto> getTasksByUserId(Long userId);
+    List<TaskDto> getTasksByUserId(Long companyAdminId , Long userId);
 
     List<TaskDto> getTasksByProjectForAUser(Long projectId, Long userId);
 

@@ -48,7 +48,7 @@ public class SecurityConfiguration {
                                 "/api/projects/{projectId}/tasks/{taskId}").hasAuthority("COMPANY_ADMIN")
                         .requestMatchers(
                                 "/api/tasks",
-                                "/api/all-tasks",
+                                "/api/users/{userId}/all-tasks",
                                 "/api/projects/{projectId}/users/{userId}/tasks",
                                 "/api/projects/{projectId}/tasks/{taskId}/comments/**",
                                 "/api/users/{userId}").hasAnyAuthority(UserRole.COMPANY_ADMIN.name(), UserRole.USER.name())
