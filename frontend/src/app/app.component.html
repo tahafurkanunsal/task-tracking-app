@@ -1,0 +1,47 @@
+
+<div *ngIf="!isUserLoggedIn && !isAdminLoggedIn && !isCompanyAdminLoggedIn">
+  <mat-toolbar color="primary">
+    <span>Task Tracker</span>
+    <span class="spacer"></span>
+    <button mat-button routerLink="/signup" routerLinkActive="active">Sign up</button>
+    <button mat-button routerLink="/login" routerLinkActive="active">Login</button>
+  </mat-toolbar>
+</div>
+
+
+<div *ngIf= "isAdminLoggedIn ">
+  <mat-toolbar color="primary">
+      <span>Task Tracker</span>
+      <span class="spacer"></span>
+      <button mat-button routerLink="/admin/dashboard" routerLinkActive="active">Dashboard</button>
+      <button mat-button>Profile</button>
+      <button mat-button routerLinkActive="active" (click)= "logout()">Logout</button>
+  </mat-toolbar>
+</div>
+  
+<div *ngIf= "isUserLoggedIn ">
+    <mat-toolbar color="primary">
+      <span>Task Tracker</span>
+      <span class="spacer"></span>
+      <button mat-button routerLink="/user/dashboard" routerLinkActive="active">Dashboard</button>
+      <button mat-button routerLink="/user/tasks" routerLinkActive="active">Tasks</button>
+      <button mat-button>Profile</button>
+      <button mat-button routerLinkActive="active" (click)= "logout()">Logout</button>
+    </mat-toolbar>
+  </div>
+
+  <div *ngIf= "isCompanyAdminLoggedIn ">
+    <mat-toolbar color="primary">
+      <span>Task Tracker</span>
+      <span class="spacer"></span>
+      <button mat-button routerLink="/company-admin/dashboard" routerLinkActive="active">Dashboard</button>
+      <button mat-button routerLink="/company-admin/addProject" routerLinkActive="active">Add Project</button>
+      <button mat-button routerLink="/company-admin/addTask" routerLinkActive="active">Add Task</button>
+      <button mat-button routerLink="/company-admin/projects" routerLinkActive="active">Projects</button>
+      <button mat-button routerLink="/company-admin/tasks" routerLinkActive="active">Tasks</button>
+      <button mat-button>Profile</button>
+      <button mat-button routerLinkActive="active" (click)= "logout()">Logout</button>
+    </mat-toolbar>
+  </div>
+
+  <router-outlet></router-outlet>

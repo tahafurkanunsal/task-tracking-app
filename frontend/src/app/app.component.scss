@@ -1,0 +1,25 @@
+.mat-toolbar {
+    background-color: #083079;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    height: 64px;
+  }
+
+  .mat-toolbar-row {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .mat-button {
+    color: white;
+    font-weight: bold;
+  }
+
+  .mat-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .spacer {
+    flex: 1 1 auto;
+  }
