@@ -7,7 +7,8 @@ const routes: Routes = [
   {path: "login" , component:LoginComponent},
   {path: "signup" , component:SignupComponent},
   { path: 'user', loadChildren: () => import('./user/user.module').then(m => m.UserModule) },
-  { path: 'company-admin', loadChildren: () => import('./company-admin/company-admin.module').then(m => m.CompanyAdminModule) }, { path: 'admin', loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule) }];
+  { path: 'company-admin', loadChildren: () => import('./company-admin/company-admin.module').then(m => m.CompanyAdminModule) },
+  { path: 'admin', loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule) }];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

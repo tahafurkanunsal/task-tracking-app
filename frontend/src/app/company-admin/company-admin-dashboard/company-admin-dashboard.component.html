@@ -1,0 +1,91 @@
+<div class="container">
+    <div class="projects">
+        <h2 class="column-heading">Projects</h2>
+        <div class="project-list">
+            <mat-card class="project-card" *ngFor="let project of projects">
+                <div class="project-details">
+                    <h2 class="project-name">{{project.name}}</h2>
+                    <span class="info-label">Description:</span>
+                    <span class="info-value">{{project.description}}</span>
+                    <mat-divider></mat-divider>
+                    <div project-info>
+                        <div class="info-row">
+                            <span class="info-label">Created Date:</span>
+                            <span class="info-value">{{ project.createdDate | date: 'dd/MM/yyyy HH:mm' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Updated Date:</span>
+                            <span class="info-value">{{ project.modifiedDate | date: 'dd/MM/yyyy HH:mm' }}</span>
+                        </div>
+                        <button class="btn btn-primary" class="add-task" [routerLink]="'/admin/' + project.id + '/tasks'">Add Task</button>
+                        <span style="margin-left: 5px;"></span>
+                        <button class="btn btn-primary">View Tasks</button>
+                        <span style="margin-left: 5px;"></span>
+                        <button class="btn btn-danger">Delete</button>
+                        <span style="margin-left: 5px;"></span>
+                        <button class="btn btn-info">Edit Project</button>
+                    </div>
+                </div>
+            </mat-card>
+        </div>
+    </div>
+
+    <div class="tasks">
+        <h2 class="column-heading">Tasks</h2>
+        <div class="task-list">
+            <mat-card class="task-card" *ngFor="let task of tasks">
+                <div class="task-details">
+                    <h2 class="task-title">{{task.title}}</h2>
+                    <span class="info-label">Description :</span>
+                    <span class="info-value">{{task.description}}</span>
+                    <mat-divider></mat-divider>
+                    <div task-info>
+                        <div class="info-row">
+                            <span class="info-label">Status :</span>
+                            <span class="info-value">{{ task.status }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Tag :</span>
+                            <span class="info-value">{{ task.tag  }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Created Date :</span>
+                            <span class="info-value">{{ task.createdDate | date: 'dd/MM/yyyy HH:mm' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Due Date :</span>
+                            <span class="info-value">{{ task.dueDate | date: 'dd/MM/yyyy HH:mm' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Updated Date :</span>
+                            <span class="info-value">{{ task.modifiedDate | date: 'dd/MM/yyyy HH:mm' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Project Id :</span>
+                            <span class="info-value">{{ task.projectId}}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Project Name :</span>
+                            <span class="info-value">{{ task.projectName}}</span>
+                        </div>
+
+                        <div class="info-row">  
+                            <span class="info-label">Assignees :</span>
+                            <div class="info-value">
+                                <span *ngFor="let userId of task.userIds">
+                                    {{ userId }}<br>
+                                </span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" class="add-task">View Assignees</button>
+                        <span style="margin-left: 5px;"></span>
+                        <button class="btn btn-primary">Edit Task</button>
+                        <span style="margin-left: 5px;"></span>
+                        <button class="btn btn-danger">Delete</button>  
+                        <span style="margin-left: 5px;"></span>
+                    </div>
+                </div>
+            </mat-card>
+        </div>
+    </div>
+</div>

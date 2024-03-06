@@ -1,0 +1,19 @@
+<div class="container">
+    <h2>Add Project</h2>
+    <form [formGroup]="projectForm" (ngSubmit)="createProject()" class="form">
+
+        <div class="form-field">
+            <label for="name">Name</label>
+            <input type="text" placeholder="Name" formControlName="name" id="name">
+            <div *ngIf="projectForm.get('name')?.invalid && (projectForm.get('name')?.dirty || projectForm.get('name')?.touched)" class="error-message">This input is required!</div>
+        </div>
+
+        <div class="form-field">
+            <label for="description">Description</label>
+            <input type="text" placeholder="Description" formControlName="description" id="description">
+            <div *ngIf="projectForm.get('description')?.invalid && (projectForm.get('description')?.dirty || projectForm.get('description')?.touched)" class="error-message">This input is required!</div>
+        </div>
+
+        <button type="submit" class="add-project-button">Add Project</button>
+    </form>
+</div>

@@ -35,26 +35,26 @@ export class LoginComponent {
     this.hidePassword = !this.hidePassword;
   }
 
-  onSubmit(): void{
+  onSubmit(): void {
     const email = this.loginForm.get('email')!.value;
     const password = this.loginForm.get('password')!.value;
-
-    this.authService.login(email , password).subscribe(
-      (response) =>{ 
+  
+    this.authService.login(email, password).subscribe(
+      (response) => {
         console.log(response);
-        if(StorageService.isAdminLoggedIn()){
-          this.router.navigateByUrl('admin/dashboard');
-        }else if(StorageService.isUserLoggedIn()){
-          this.router.navigateByUrl('user/dashboard');
-        }else if(StorageService.isCompanyAdminLoggedIn()){
-          this.router.navigateByUrl('company-admin/dashboard');
+        if (StorageService.isAdminLoggedIn()) {
+          this.router.navigateByUrl('/admin');
+        } else if (StorageService.isUserLoggedIn()) {
+          this.router.navigateByUrl('/user');
+        } else if (StorageService.isCompanyAdminLoggedIn()) {
+          this.router.navigateByUrl('/company-admin');
         }
       },
       (error) => {
-        this.snackBar.open('Bad credentials' , 'ERROR', {duration: 5000});
+        this.snackBar.open('Bad credentials', 'ERROR', { duration: 5000 });
       }
-    )
-
+    );
   } 
+   
 
 }

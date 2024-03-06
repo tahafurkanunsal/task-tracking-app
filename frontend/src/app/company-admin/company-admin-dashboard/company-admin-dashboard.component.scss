@@ -1,0 +1,90 @@
+.container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.projects {
+    margin-left: 10px;
+    width: 40%;
+}
+
+.tasks {
+    width: 40%;
+}
+
+.project-list,
+.task-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.project-card,
+.task-card {
+    width: calc(100% - 20px); /* To account for the gap */
+    flex-basis: 48%; /* To make two items fit nicely in a row */
+}
+
+.project-details,
+.task-details {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.column-heading {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.project-name,
+.task-title {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.info-label {
+    font-weight: bold;
+}
+
+.btn {
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: blue;
+    color: white;
+}
+
+.btn-danger {
+    background-color: red;
+    color: white;
+}
+
+
+button {
+    padding: 5px 10px;
+    border: 0;
+    border-radius: 80px;
+    background-color: #2ba8fb;
+    color: #ffffff;
+    font-weight: Bold;
+    transition: all 0.5s;
+    -webkit-transition: all 0.5s;
+  }
+
+  button:hover {
+    background-color: #6fc5ff;
+    box-shadow: 0 0 20px #6fc5ff50;
+    transform: scale(1.1);
+  }
+
+  button:active {
+    background-color: #3d94cf;
+    transition: all 0.25s;
+    -webkit-transition: all 0.25s;
+    box-shadow: none;
+    transform: scale(0.98);
+  }

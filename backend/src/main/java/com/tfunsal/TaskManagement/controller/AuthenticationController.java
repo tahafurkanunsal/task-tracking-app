@@ -64,12 +64,18 @@ public class AuthenticationController {
         final String jwt = jwtUtil.generateToken(userDetails);
 
         if (optionalUser.isPresent()) {
-            response.getWriter().write(new JSONObject()
+            JSONObject jsonResponse = new JSONObject()
                     .put("userId", optionalUser.get().getId())
                     .put("role", optionalUser.get().getRole())
-                    .put("token", jwt)
-                    .toString()
-            );
+                    .put("token", jwt);
+
+            if (optionalUser.get().getCompany() != null) {
+                jsonResponse.put("companyId", optionalUser.get().getCompany().getId());
+            } else {
+                jsonResponse.put("companyId", JSONObject.NULL);
+            }
+
+            response.getWriter().write(jsonResponse.toString());
             response.addHeader("Access-Control-Expose-Headers", "Authorization");
             response.addHeader("Access-Control-Allow-Headers", "Authorization, X-PINGOTHER, Origin, X-Requested-With, Content-Type, Accept, X-Customer-header");
             response.addHeader(HEADER_STRING, TOKEN_PREFIX + jwt);
